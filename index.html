@@ -1130,16 +1130,32 @@ function calc() {
   document.getElementById('capitalStack').innerHTML = '<div class="stack-segment stack-dscr" style="flex:' + dscrPctStack + ';min-width:50px;">' + (dscrPctStack > 15 ? 'DSCR ' + dscrPctStack.toFixed(0) + '%' : '') + '</div><div class="stack-segment stack-seller" style="flex:' + sellerPctStack + ';">Seller ' + sellerPctStack.toFixed(0) + '%</div>';
 
   // ===== LEDGER CHECK =====
-  // Sources: DSCR loan + seller carry note + buyer cash in
-  // Uses: PP + closing costs + assignment fee + TF fee + TC fee + sec closing + buyer cash out
-  // (Existing payoff is paid from PP proceeds, not a separate cost)
-  const totalIN = dscrLoan + sellerCarry + buyerCashIn;
-  const totalOUT = pp + closingCosts + assignmentFee + tfFee + tcFee + secClosing + buyerCashOut + sellerActualCash;
-  const ledgerBalance = totalIN - totalOUT;
+  // Combined view of both closes — every line item traces to Primary or Secondary close
+  // Sources: DSCR loan + TF + buyer cash (same as Primary Close IN)
+  // Uses: Closing costs + existing payoff + all secondary distributions (matches both close tables)
+  const ledgerIN = dscrLoan + tfAmount + buyerCashIn;
+  const ledgerOUT = closingCosts + existingPayoff + sellerActualCash + buyerDistributions + tfAmount + tfFee + tcFee + secClosing + assignmentFee;
+  const ledgerBalance = ledgerIN - ledgerOUT;
   let ledgerHTML = '<div class="result-box">';
-  ledgerHTML += '<div class="result-row"><span class="result-label">Total IN (DSCR + Seller Carry' + (buyerCashIn > 0 ? ' + Buyer Cash' : '') + ')</span><span class="result-value">' + fmt(totalIN) + '</span></div>';
-  ledgerHTML += '<div class="result-row"><span class="result-label">Total OUT (PP + costs + fees' + (sellerActualCash > 0 ? ' + seller cash' : '') + ')</span><span class="result-value">' + fmt(totalOUT) + '</span></div>';
-  ledgerHTML += '<div class="result-row" style="background:' + (Math.abs(ledgerBalance) < 10 ? 'var(--green-bg)' : 'var(--red-bg)') + ';margin:0 -16px -14px;padding:8px 16px;border-radius:0 0 6px 6px;border-top:2px solid ' + (Math.abs(ledgerBalance) < 10 ? 'var(--green)' : 'var(--red)') + ';"><span class="result-label" style="font-weight:700;">Balance</span><span class="result-value" style="font-weight:700;color:' + (Math.abs(ledgerBalance) < 10 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(ledgerBalance) + ' ' + (Math.abs(ledgerBalance) < 10 ? '✓' : '✗') + '</span></div>';
+  ledgerHTML += '<strong style="color:var(--navy);display:block;margin-bottom:8px;">Sources (Primary Close IN)</strong>';
+  ledgerHTML += '<div class="result-row"><span class="result-label">DSCR Loan</span><span class="result-value">' + fmt(dscrLoan) + '</span></div>';
+  if (tfAmount > 0) ledgerHTML += '<div class="result-row"><span class="result-label">Transactional Funding</span><span class="result-value">' + fmt(tfAmount) + '</span></div>';
+  if (buyerCashIn > 0) ledgerHTML += '<div class="result-row"><span class="result-label">Buyer Cash In</span><span class="result-value">' + fmt(buyerCashIn) + '</span></div>';
+  ledgerHTML += '<div class="result-row" style="background:var(--gray-bg);border-radius:6px;padding:0 6px;"><span class="result-label" style="font-weight:600;">Total Sources</span><span class="result-value" style="font-weight:700;">' + fmt(ledgerIN) + '</span></div>';
+  ledgerHTML += '<div style="height:12px;"></div>';
+  ledgerHTML += '<strong style="color:var(--navy);display:block;margin-bottom:8px;">Uses (Primary + Secondary OUT)</strong>';
+  ledgerHTML += '<div class="result-row"><span class="result-label">Closing Costs</span><span class="result-value">' + fmt(closingCosts) + '</span></div>';
+  if (existingPayoff > 0) ledgerHTML += '<div class="result-row"><span class="result-label">Existing Loan Payoff</span><span class="result-value">' + fmt(existingPayoff) + '</span></div>';
+  if (sellerActualCash > 0) ledgerHTML += '<div class="result-row"><span class="result-label">Cash to Seller</span><span class="result-value">' + fmt(sellerActualCash) + '</span></div>';
+  if (buyerDistributions > 0) ledgerHTML += '<div class="result-row"><span class="result-label">Buyer Distributions</span><span class="result-value">' + fmt(buyerDistributions) + '</span></div>';
+  if (tfAmount > 0) ledgerHTML += '<div class="result-row"><span class="result-label">TF Repayment</span><span class="result-value">' + fmt(tfAmount) + '</span></div>';
+  if (tfFee > 0) ledgerHTML += '<div class="result-row"><span class="result-label">TF Fee</span><span class="result-value">' + fmt(tfFee) + '</span></div>';
+  ledgerHTML += '<div class="result-row"><span class="result-label">TC Fee</span><span class="result-value">' + fmt(tcFee) + '</span></div>';
+  ledgerHTML += '<div class="result-row"><span class="result-label">Secondary Closing</span><span class="result-value">' + fmt(secClosing) + '</span></div>';
+  if (assignmentFee > 0) ledgerHTML += '<div class="result-row"><span class="result-label">Assignment Fee</span><span class="result-value">' + fmt(assignmentFee) + '</span></div>';
+  ledgerHTML += '<div class="result-row" style="background:var(--gray-bg);border-radius:6px;padding:0 6px;"><span class="result-label" style="font-weight:600;">Total Uses</span><span class="result-value" style="font-weight:700;">' + fmt(ledgerOUT) + '</span></div>';
+  ledgerHTML += '<div style="height:8px;"></div>';
+  ledgerHTML += '<div class="result-row" style="background:' + (Math.abs(ledgerBalance) < 1 ? 'var(--green-bg)' : 'var(--red-bg)') + ';margin:0 -16px -14px;padding:8px 16px;border-radius:0 0 6px 6px;border-top:2px solid ' + (Math.abs(ledgerBalance) < 1 ? 'var(--green)' : 'var(--red)') + ';"><span class="result-label" style="font-weight:700;">Balance</span><span class="result-value" style="font-weight:700;color:' + (Math.abs(ledgerBalance) < 1 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(ledgerBalance) + ' ' + (Math.abs(ledgerBalance) < 1 ? '\u2713' : '\u2717') + '</span></div>';
   ledgerHTML += '</div>';
   document.getElementById('ledgerCheckResults').innerHTML = ledgerHTML;
 
