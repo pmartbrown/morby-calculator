@@ -748,9 +748,7 @@ table td:first-child {
       <div class="card-title">Operating Expenses</div>
       <div class="form-row">
         <div class="field">
-          <label class="field-label">Annual Insurance $
-            <span class="help-icon" data-help="Annual property insurance cost. Divided by 12 for monthly calculations.">?</span>
-          </label>
+          <label class="field-label">Annual Insurance $</label>
           <input type="text" id="insurance" placeholder="$0" value="" oninput="formatAndCalc(this, 'number')">
         </div>
         <div class="field">
@@ -868,13 +866,13 @@ function parseNum(str) {
 }
 function formatAndCalc(el, type) {
   const currencyIds = ['purchasePrice', 'appraisalValue', 'existingPayoff', 'sellerCashDesired', 'buyerCashOut', 'assignmentFee', 'tcFee', 'secClosing', 'fixedSellerCarry', 'monthlyRent', 'insurance', 'otherMonthly'];
-  let val = parseNum(el.value);
   if (type === 'number') {
     if (currencyIds.includes(el.id)) {
+      let val = parseNum(el.value);
       el.value = val > 0 ? fmt(val) : '';
-    } else {
-      el.value = val;
     }
+    // Non-currency fields: don't reformat on input — allow decimals like 0.5, 1.3
+    // The raw string is parsed by parseNum() inside calc() when needed
   }
   calc();
 }
@@ -1179,14 +1177,14 @@ function calc() {
   // Render cash flow
   let cfHTML = '<div class="result-box">';
   cfHTML += '<div class="result-row"><span class="result-label">Monthly Gross Rent</span><span class="result-value">' + fmt(rent) + '</span></div>';
-  cfHTML += '<div class="result-row"><span class="result-label">Vacancy Loss (' + (vacancy*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(rent * vacancy) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Vacancy Loss (' + parseFloat((vacancy*100).toFixed(1)) + '%)</span><span class="result-value">-' + fmt(rent * vacancy) + '</span></div>';
   cfHTML += '<div class="result-row"><span class="result-label">Net Rent</span><span class="result-value">' + fmt(netRent) + '</span></div>';
   cfHTML += '<hr style="border:none;border-top:1px solid var(--gray-border);margin:8px 0;">';
   cfHTML += '<div class="result-row"><span class="result-label">Insurance (' + fmt(insuranceAnnual) + '/yr)</span><span class="result-value">-' + fmt(insurance) + '/mo</span></div>';
   cfHTML += '<div class="result-row"><span class="result-label">Property Tax (' + (taxRate*12*100).toFixed(1) + '% annual)</span><span class="result-value">-' + fmt(taxMonthly) + '</span></div>';
-  cfHTML += '<div class="result-row"><span class="result-label">Maintenance (' + (maintRate*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(maintMonthly) + '</span></div>';
-  cfHTML += '<div class="result-row"><span class="result-label">Property Management (' + (pmRate*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(pmMonthly) + '</span></div>';
-  cfHTML += '<div class="result-row"><span class="result-label">CapEx (' + (capexRate*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(capexMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Maintenance (' + parseFloat((maintRate*100).toFixed(1)) + '%)</span><span class="result-value">-' + fmt(maintMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Property Management (' + parseFloat((pmRate*100).toFixed(1)) + '%)</span><span class="result-value">-' + fmt(pmMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">CapEx (' + parseFloat((capexRate*100).toFixed(1)) + '%)</span><span class="result-value">-' + fmt(capexMonthly) + '</span></div>';
   if (otherMonthly > 0) cfHTML += '<div class="result-row"><span class="result-label">Other Monthly</span><span class="result-value">-' + fmt(otherMonthly) + '</span></div>';
   cfHTML += '<div class="result-row" style="background:var(--orange-soft);margin:0 -16px;padding:8px 16px;border-top:2px solid var(--orange);"><span class="result-label" style="font-weight:700;">NOI</span><span class="result-value" style="font-weight:700;color:var(--orange);">' + fmt(noi) + '</span></div>';
   cfHTML += '<div style="height:8px;"></div>';
