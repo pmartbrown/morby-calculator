@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>STACK / Morby Method Calculator — Real Quick Funds</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --orange: #FE9D1A;
+  --orange-light: #FFB366;
+  --orange-glow: rgba(254,157,26,0.15);
+  --orange-soft: #FFF3E5;
+  --navy: #1e293b;
+  --navy-deep: #0f172a;
+  --slate: #334155;
+  --slate-light: #64748b;
+  --gray-border: #D1D5DB;
+  --gray-bg: #F0F5FA;
+  --white: #FFFFFF;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --blue: #0ea5e9;
+  --blue-bg: #f0f9ff;
+  --yellow: #eab308;
+  --yellow-bg: #fefce8;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lato', sans-serif; background: var(--gray-bg); color: var(--slate); line-height: 1.6; }
+
+/* ===== HEADER ===== */
+.header {
+  background: var(--navy-deep);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--orange);
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.header-brand img {
+  height: 44px;
+  width: auto;
+}
+.header-brand .title-text {
+  color: var(--slate-light);
+  font-size: 13px;
+  font-weight: 400;
+}
+.header-brand .title-text strong {
+  color: var(--white);
+  font-weight: 700;
+  font-size: 14px;
+  display: block;
+}
+.btn-fund {
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-fund:hover {
+  background: #e88d15;
+}
+
+/* ===== STICKY SECTION NAV ===== */
+.section-nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-border);
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow-x: auto;
+}
+.section-nav-inner {
+  display: flex;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  white-space: nowrap;
+}
+.nav-link {
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--slate-light);
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-link:hover {
+  color: var(--navy);
+}
+.nav-link.active {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+}
+.nav-link .nav-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-bg);
+  color: var(--slate-light);
+  font-weight: 700;
+}
+.nav-link.active .nav-num {
+  background: var(--orange);
+  color: var(--white);
+}
+
+/* ===== LAYOUT ===== */
+.page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media(max-width: 900px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== SECTION HEADINGS ===== */
+.section-block {
+  margin-bottom: 32px;
+  scroll-margin-top: 70px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.section-header .sec-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--orange);
+  color: var(--white);
+  flex-shrink: 0;
+}
+.section-header h2 {
+  font-size: 20px;
+  color: var(--navy);
+  font-weight: 700;
+}
+.section-desc {
+  color: var(--slate-light);
+  font-size: 14px;
+  margin-bottom: 16px;
+  padding-left: 44px;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.form-row.full {
+  grid-template-columns: 1fr;
+}
+@media(max-width: 900px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== FORM FIELDS ===== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-label .help-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  position: relative;
+}
+.field-label .help-icon:hover::after {
+  content: attr(data-help);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy-deep);
+  color: var(--white);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.field-label .help-icon:hover {
+  background: var(--orange-light);
+}
+input[type="text"],
+input[type="number"],
+select {
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  color: var(--navy);
+  transition: all 0.2s;
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+.field-suffix {
+  font-size: 12px;
+  color: var(--slate-light);
+  margin-top: 4px;
+}
+
+/* ===== CALLOUT BOXES ===== */
+.callout {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  border-left: 4px solid;
+  margin-bottom: 16px;
+}
+.callout-info {
+  background: var(--blue-bg);
+  border-color: var(--blue);
+  color: #0369a1;
+}
+.callout-warning {
+  background: var(--yellow-bg);
+  border-color: var(--yellow);
+  color: #854d0e;
+}
+.callout-success {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: #166534;
+}
+.callout-error {
+  background: var(--red-bg);
+  border-color: var(--red);
+  color: #7f1d1d;
+}
+
+/* ===== RESULTS DISPLAY ===== */
+.result-box {
+  background: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-border);
+}
+.result-row:last-child {
+  border-bottom: none;
+}
+.result-label {
+  color: var(--slate-light);
+  font-size: 13px;
+  font-weight: 500;
+}
+.result-value {
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 700;
+}
+.result-pct {
+  color: var(--slate-light);
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* ===== CAPITAL STACK VIZ ===== */
+.capital-stack {
+  background: var(--gray-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  height: 40px;
+  display: flex;
+}
+.stack-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+.stack-segment:hover {
+  opacity: 0.9;
+}
+.stack-dscr {
+  background: #06b6d4;
+}
+.stack-seller {
+  background: var(--orange);
+}
+.stack-tf {
+  background: var(--green);
+}
+
+/* ===== TABLE ===== */
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table thead {
+  background: var(--gray-bg);
+  border-bottom: 2px solid var(--gray-border);
+}
+table th {
+  padding: 12px 8px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--navy);
+}
+table th:first-child {
+  text-align: left;
+}
+table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--gray-border);
+  text-align: right;
+  color: var(--slate);
+}
+table td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+
+/* ===== CHART ===== */
+.chart-container {
+  position: relative;
+  height: 350px;
+  margin-bottom: 24px;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .header, .section-nav, .btn-fund {
+    display: none;
+  }
+  body {
+    background: var(--white);
+  }
+  .page-wrap {
+    padding: 0;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="header-brand">
+    <img src="https://realquickfunds.com/wp-content/uploads/2025/03/Real-Quick-logo.png" alt="Real Quick Funds">
+    <div class="title-text">
+      <strong>STACK Method Calculator</strong>
+      by Real Quick Funds
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ===== STICKY NAV ===== -->
+<div class="section-nav">
+  <div class="section-nav-inner">
+    <a class="nav-link active" onclick="scrollToSec('sec-inputs')" data-section="sec-inputs">
+      <span class="nav-num">1</span> Deal Inputs
+    </a>
+    <a class="nav-link" onclick="scrollToSec('sec-closes')" data-section="sec-closes">
+      <span class="nav-num">2</span> Close Breakdown
+    </a>
+    <a class="nav-link" onclick="scrollToSec('sec-cashflow')" data-section="sec-cashflow">
+      <span class="nav-num">3</span> Rental Cash Flow
+    </a>
+  </div>
+</div>
+
+<!-- ===== PAGE CONTENT ===== -->
+<div class="page-wrap">
+
+  <!-- ===== SECTION 1: DEAL INPUTS ===== -->
+  <div class="section-block" id="sec-inputs">
+    <div class="section-header">
+      <div class="sec-num">1</div>
+      <h2>Deal Inputs</h2>
+    </div>
+    <p class="section-desc">Configure your deal parameters below. Choose a calculation mode and enter all deal details.</p>
+
+    <!-- MODE TOGGLE -->
+    <div style="display:flex; gap:0; margin-bottom:20px; border-radius:8px; overflow:hidden; border:2px solid var(--orange);">
+      <button id="modeCalcBtn" onclick="setMode('calc')" style="flex:1; padding:12px; font-family:'Lato',sans-serif; font-size:14px; font-weight:700; border:none; cursor:pointer; transition:all 0.2s; background:var(--orange); color:var(--white);">Calculate Seller Carry</button>
+      <button id="modeFixedBtn" onclick="setMode('fixed')" style="flex:1; padding:12px; font-family:'Lato',sans-serif; font-size:14px; font-weight:700; border:none; cursor:pointer; transition:all 0.2s; background:var(--white); color:var(--orange);">Fixed Seller Carry</button>
+    </div>
+
+    <div id="modeDesc" class="callout callout-info" style="margin-bottom:20px;">You set the deal terms — the calculator determines how large the seller carry note needs to be for a zero-down close.</div>
+
+    <!-- Card 1: Property & Purchase -->
+    <div class="card">
+      <div class="card-title">Property & Purchase</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            Purchase Price
+            <span class="help-icon" data-help="The agreed contract price.">?</span>
+          </label>
+          <input type="text" id="purchasePrice" placeholder="$600,000" value="$600,000" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            Closing Cost %
+            <span class="help-icon" data-help="Closing costs as a percentage of the purchase price. Includes lender fees, title, escrow, prepaid taxes/insurance.">?</span>
+          </label>
+          <input type="text" id="closingCostPct" placeholder="5" value="5" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            DSCR LTV %
+            <span class="help-icon" data-help="Loan-to-value ratio — percentage of the lower of PP or appraisal that the DSCR lender will finance.">?</span>
+          </label>
+          <input type="text" id="ltv" placeholder="80" value="80" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            DSCR Appraisal Value
+            <span class="help-icon" data-help="What the property appraises at. DSCR lenders use the LOWER of purchase price or appraisal. Leave blank to default to purchase price.">?</span>
+          </label>
+          <input type="text" id="appraisalValue" placeholder="$600,000" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label" style="color:var(--slate-light);">DSCR Loan Amount</label>
+          <div id="dscrLoanValue" style="background:var(--orange-soft);border:1px solid var(--orange);border-radius:6px;padding:10px 12px;font-size:14px;font-weight:700;color:var(--orange);">$480,000</div>
+        </div>
+        <div class="field">
+          <label class="field-label" style="color:var(--slate-light);">Cash to Close</label>
+          <div id="cashToCloseValue" style="background:var(--orange-soft);border:1px solid var(--orange);border-radius:6px;padding:10px 12px;font-size:14px;font-weight:700;color:var(--orange);">$150,000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Seller & Buyer -->
+    <div class="card">
+      <div class="card-title">Seller & Buyer</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            Buyer Cash Out $
+            <span class="help-icon" data-help="Cash buyer wants to receive at closing. Gets added to the seller carry note.">?</span>
+          </label>
+          <input type="text" id="buyerCashOut" placeholder="$0" value="$0" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            Assignment Fee $
+            <span class="help-icon" data-help="Wholesaler's assignment fee, if applicable.">?</span>
+          </label>
+          <input type="text" id="assignmentFee" placeholder="$0" value="$0" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            Existing Loan Payoff $
+            <span class="help-icon" data-help="Seller's remaining mortgage balance that must be paid off at closing.">?</span>
+          </label>
+          <input type="text" id="existingPayoff" placeholder="$0" value="$0" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            Seller Cash Desired $
+            <span class="help-icon" data-help="How much cash the seller wants to walk away with ABOVE their loan payoff.">?</span>
+          </label>
+          <input type="text" id="sellerCashDesired" placeholder="$0" value="$0" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div id="fixedSellerCarryField" style="display:none; flex:1;">
+          <div class="field">
+            <label class="field-label">
+              Fixed Seller Carry $
+              <span class="help-icon" data-help="The known/negotiated seller carry-back note amount. The calculator will determine how much buyer cash is needed.">?</span>
+            </label>
+            <input type="text" id="fixedSellerCarry" placeholder="$0" value="$0" oninput="formatAndCalc(this, 'number')">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Loan & Funding Terms -->
+    <div class="card">
+      <div class="card-title">Loan & Funding Terms</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            DSCR Interest Rate %
+            <span class="help-icon" data-help="Annual interest rate for the DSCR loan.">?</span>
+          </label>
+          <input type="text" id="dscrRate" placeholder="6.75" value="6.75" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            DSCR Term Years
+            <span class="help-icon" data-help="Amortization period in years for the DSCR loan.">?</span>
+          </label>
+          <input type="text" id="dscrTerm" placeholder="30" value="30" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            Seller Carry Interest Rate %
+            <span class="help-icon" data-help="Annual interest rate on the seller carry-back note.">?</span>
+          </label>
+          <input type="text" id="sellerRate" placeholder="5" value="5" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            Seller Carry Term Years
+            <span class="help-icon" data-help="Amortization period for the seller carry-back note.">?</span>
+          </label>
+          <input type="text" id="sellerTerm" placeholder="30" value="30" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            Seller Carry Payment Type
+            <span class="help-icon" data-help="How the seller note is paid: Amortized, Interest-Only, or Deferred.">?</span>
+          </label>
+          <select id="sellerPaymentType" onchange="calc()" style="font-family:'Lato',sans-serif; font-size:14px;">
+            <option value="amortized">Amortized</option>
+            <option value="interestonly">Interest-Only</option>
+            <option value="deferred">Deferred</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">
+            Balloon Payment Years
+            <span class="help-icon" data-help="Years until the remaining seller note balance is due in full.">?</span>
+          </label>
+          <input type="text" id="balloonYears" placeholder="5" value="5" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            TF Rate %
+            <span class="help-icon" data-help="Transactional funder's fee as a percentage of the TF amount. Real Quick Funds' standard rate is 2.5%.">?</span>
+          </label>
+          <input type="text" id="tfRate" placeholder="2.5" value="2.5" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">
+            TC Fee $
+            <span class="help-icon" data-help="Transaction coordinator fee.">?</span>
+          </label>
+          <input type="text" id="tcFee" placeholder="$2,500" value="$2,500" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">
+            Secondary Closing Costs $
+            <span class="help-icon" data-help="Costs for the secondary closing (escrow, title, recording).">?</span>
+          </label>
+          <input type="text" id="secClosing" placeholder="$2,500" value="$2,500" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== SECTION 2: CLOSE BREAKDOWN ===== -->
+  <div class="section-block" id="sec-closes">
+    <div class="section-header">
+      <div class="sec-num">2</div>
+      <h2>Close Breakdown</h2>
+    </div>
+    <p class="section-desc">Summary of the deal structure and cash flows through both closing events.</p>
+
+    <!-- Card: Deal Summary -->
+    <div class="card">
+      <div class="card-title">Deal Summary</div>
+      <div id="dealSummary"></div>
+    </div>
+
+    <!-- Card: Primary Close Cash Flow -->
+    <div class="card">
+      <div class="card-title">Primary Close Cash Flow</div>
+      <div id="primaryCloseResults"></div>
+    </div>
+
+    <!-- Card: Secondary Close Cash Flow -->
+    <div class="card">
+      <div class="card-title">Secondary Close Cash Flow</div>
+      <div id="secondaryCloseResults"></div>
+    </div>
+
+    <!-- Card: Capital Stack -->
+    <div class="card">
+      <div class="card-title">Capital Stack</div>
+      <div id="capitalStack" class="capital-stack"></div>
+    </div>
+
+    <!-- Card: Ledger Check -->
+    <div class="card">
+      <div class="card-title">Ledger Check</div>
+      <div id="ledgerCheckResults"></div>
+    </div>
+
+    <!-- Card: Deal Viability Checks -->
+    <div class="card">
+      <div class="card-title">Deal Viability Checks</div>
+      <div id="dealChecks"></div>
+    </div>
+
+    <!-- Apply Button -->
+    <div style="text-align: center; margin-top: 16px;">
+      <a href="https://txfhub.com" target="_blank" class="btn-fund">Apply for Transactional Funding</a>
+    </div>
+
+  </div>
+
+  <!-- ===== SECTION 3: CASH FLOW ===== -->
+  <div class="section-block" id="sec-cashflow">
+    <div class="section-header">
+      <div class="sec-num">3</div>
+      <h2>Rental Cash Flow Analysis</h2>
+    </div>
+    <div class="callout callout-info">The deal structure (Sections 1–2) is complete without this section. Use this to analyze whether the property's monthly rental income covers debt service and operating expenses.</div>
+
+    <!-- Rental Income -->
+    <div class="card">
+      <div class="card-title">Rental Income</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Monthly Rent $</label>
+          <input type="text" id="monthlyRent" placeholder="$0" value="" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">Vacancy Rate %</label>
+          <input type="text" id="vacancyRate" placeholder="5" value="5" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+    </div>
+
+    <!-- Operating Expenses -->
+    <div class="card">
+      <div class="card-title">Operating Expenses</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Annual Insurance $
+            <span class="help-icon" data-help="Annual property insurance cost. Divided by 12 for monthly calculations.">?</span>
+          </label>
+          <input type="text" id="insurance" placeholder="$0" value="" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">Property Tax Rate %</label>
+          <input type="text" id="taxRate" placeholder="1.2" value="1.2" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Maintenance %</label>
+          <input type="text" id="maintRate" placeholder="10" value="10" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">Property Management %</label>
+          <input type="text" id="pmRate" placeholder="8" value="8" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">CapEx %</label>
+          <input type="text" id="capexRate" placeholder="5" value="5" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">Other Monthly $</label>
+          <input type="text" id="otherMonthly" placeholder="$0" value="" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+    </div>
+
+    <!-- Cash Flow Results -->
+    <div class="card">
+      <div class="card-title">Monthly Cash Flow</div>
+      <div id="cashFlowResults"></div>
+    </div>
+
+    <!-- Cash Flow Metrics -->
+    <div class="card">
+      <div class="card-title">Metrics</div>
+      <div id="cashFlowMetrics"></div>
+    </div>
+
+    <div id="dscrWarningBox"></div>
+
+    <!-- Hold & Exit Assumptions -->
+    <div class="card">
+      <div class="card-title">Hold & Exit Assumptions</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Hold Years</label>
+          <input type="text" id="holdYears" placeholder="5" value="5" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">Annual Appreciation %</label>
+          <input type="text" id="appreciationRate" placeholder="3" value="3" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Annual Rent Increase %</label>
+          <input type="text" id="rentIncreaseRate" placeholder="3" value="3" oninput="formatAndCalc(this, 'number')">
+        </div>
+        <div class="field">
+          <label class="field-label">Exit Costs %</label>
+          <input type="text" id="exitCosts" placeholder="8" value="8" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Refi LTV %</label>
+          <input type="text" id="refiLTV" placeholder="75" value="75" oninput="formatAndCalc(this, 'number')">
+        </div>
+      </div>
+    </div>
+
+    <!-- Projections Table -->
+    <div class="card">
+      <div class="card-title">5-Year Projections</div>
+      <div style="overflow-x:auto;">
+        <table id="projectionsTable" style="width:100%; border-collapse:collapse; font-size:13px;"></table>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-title">5-Year Chart</div>
+      <div style="position:relative; height:400px;">
+        <canvas id="projectionChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let chart = null;
+let currentMode = 'calc'; // 'calc' or 'fixed'
+
+// ===== UTILITIES =====
+function fmt(num) {
+  if (num === null || num === undefined || isNaN(num)) return '$0';
+  return '$' + Math.round(num).toLocaleString();
+}
+function fmtPct(num) {
+  if (num === null || num === undefined || isNaN(num)) return '0%';
+  return (num || 0).toFixed(2) + '%';
+}
+function pmt(rate, nper, pv) {
+  if (rate === 0) return pv / nper;
+  return pv * (rate * Math.pow(1 + rate, nper)) / (Math.pow(1 + rate, nper) - 1);
+}
+function parseNum(str) {
+  if (!str) return 0;
+  return parseFloat(str.toString().replace(/[^0-9.-]/g, '')) || 0;
+}
+function formatAndCalc(el, type) {
+  const currencyIds = ['purchasePrice', 'appraisalValue', 'existingPayoff', 'sellerCashDesired', 'buyerCashOut', 'assignmentFee', 'tcFee', 'secClosing', 'fixedSellerCarry', 'monthlyRent', 'insurance', 'otherMonthly'];
+  let val = parseNum(el.value);
+  if (type === 'number') {
+    if (currencyIds.includes(el.id)) {
+      el.value = val > 0 ? fmt(val) : '';
+    } else {
+      el.value = val;
+    }
+  }
+  calc();
+}
+
+// ===== MODE TOGGLE =====
+function setMode(mode) {
+  currentMode = mode;
+  const calcBtn = document.getElementById('modeCalcBtn');
+  const fixedBtn = document.getElementById('modeFixedBtn');
+  const fixedField = document.getElementById('fixedSellerCarryField');
+  const modeDesc = document.getElementById('modeDesc');
+
+  if (mode === 'calc') {
+    calcBtn.style.background = 'var(--orange)';
+    calcBtn.style.color = 'var(--white)';
+    fixedBtn.style.background = 'var(--white)';
+    fixedBtn.style.color = 'var(--orange)';
+    fixedField.style.display = 'none';
+    modeDesc.innerHTML = 'You set the deal terms — the calculator determines how large the seller carry note needs to be for a zero-down close.';
+  } else {
+    fixedBtn.style.background = 'var(--orange)';
+    fixedBtn.style.color = 'var(--white)';
+    calcBtn.style.background = 'var(--white)';
+    calcBtn.style.color = 'var(--orange)';
+    fixedField.style.display = '';
+    modeDesc.innerHTML = 'The seller carry amount is fixed — the calculator determines how much cash the buyer needs to bring to close.';
+  }
+  calc();
+}
+
+// ===== SCROLL & NAV =====
+function scrollToSec(secId) {
+  const el = document.getElementById(secId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateNavHighlight();
+  }
+}
+function updateNavHighlight() {
+  const sections = ['sec-inputs', 'sec-closes', 'sec-cashflow'];
+  let current = sections[0];
+  for (let sec of sections) {
+    const el = document.getElementById(sec);
+    if (el && el.getBoundingClientRect().top < 150) current = sec;
+  }
+  document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+  const activeLink = document.querySelector('.nav-link[data-section="' + current + '"]');
+  if (activeLink) activeLink.classList.add('active');
+}
+
+// ===== MAIN CALCULATION ENGINE =====
+function calc() {
+  // Parse inputs
+  const pp = parseNum(document.getElementById('purchasePrice').value);
+  const appraisal = parseNum(document.getElementById('appraisalValue').value) || pp;
+  const ltv = parseNum(document.getElementById('ltv').value) / 100;
+  const closingCostPct = parseNum(document.getElementById('closingCostPct').value) / 100;
+  const existingPayoff = parseNum(document.getElementById('existingPayoff').value);
+  const sellerCashDesired = parseNum(document.getElementById('sellerCashDesired').value);
+  const buyerCashOut = parseNum(document.getElementById('buyerCashOut').value);
+  const assignmentFee = parseNum(document.getElementById('assignmentFee').value);
+  const dscrRateAnnual = parseNum(document.getElementById('dscrRate').value) / 100;
+  const dscrRate = dscrRateAnnual / 12;
+  const dscrTermYears = parseNum(document.getElementById('dscrTerm').value);
+  const dscrTerm = dscrTermYears * 12;
+  const sellerRateAnnual = parseNum(document.getElementById('sellerRate').value) / 100;
+  const sellerRate = sellerRateAnnual / 12;
+  const sellerTermYears = parseNum(document.getElementById('sellerTerm').value);
+  const sellerTerm = sellerTermYears * 12;
+  const sellerPaymentType = document.getElementById('sellerPaymentType').value;
+  const balloonYears = parseNum(document.getElementById('balloonYears').value);
+  const tfRate = parseNum(document.getElementById('tfRate').value) / 100;
+  const tcFee = parseNum(document.getElementById('tcFee').value);
+  const secClosing = parseNum(document.getElementById('secClosing').value);
+
+  // Guard
+  if (pp <= 0) {
+    ['dealSummary','primaryCloseResults','secondaryCloseResults','dealChecks',
+     'ledgerCheckResults','cashFlowResults','cashFlowMetrics','dscrWarningBox'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.innerHTML = '';
+    });
+    document.getElementById('capitalStack').innerHTML = '';
+    document.getElementById('projectionsTable').innerHTML = '';
+    if (chart) { chart.destroy(); chart = null; }
+    return;
+  }
+
+  // ===== SHARED CALCULATIONS =====
+  const closingCosts = pp * closingCostPct;
+  const ltvBasis = Math.min(pp, appraisal);
+  const dscrLoan = ltvBasis * ltv;
+  const costToClose = pp + closingCosts;
+  const cashToClose = costToClose - dscrLoan;
+
+  // Holdback: what flows from primary to secondary (PP minus existing payoff paid at primary)
+  const holdback = pp - existingPayoff;
+
+  let tfAmount, tfFee, sellerCarry, buyerCashIn, cashToSeller;
+
+  if (currentMode === 'calc') {
+    // MODE 1: Back into seller carry (assignment fee paid at secondary, rolled into carry)
+    tfAmount = cashToClose;
+    tfFee = tfAmount * tfRate;
+    sellerCarry = tfAmount + tfFee + tcFee + secClosing + buyerCashOut + assignmentFee;
+    buyerCashIn = 0;
+    cashToSeller = holdback - sellerCarry;
+  } else {
+    // MODE 2: Fixed seller carry (assignment fee must also come from carry)
+    sellerCarry = parseNum(document.getElementById('fixedSellerCarry').value);
+    const availableForTF = sellerCarry - tcFee - secClosing - buyerCashOut - assignmentFee;
+    tfAmount = Math.max(0, availableForTF / (1 + tfRate));
+    tfFee = tfAmount * tfRate;
+    buyerCashIn = Math.max(0, cashToClose - tfAmount);
+    cashToSeller = holdback - sellerCarry;
+  }
+
+  // Seller viability (payoff already handled in primary, so seller just needs their desired cash)
+  const sellerMustReceive = sellerCashDesired;
+  const sellerSurplus = cashToSeller - sellerMustReceive;
+  const dealWorks = sellerSurplus >= 0;
+
+  // Buyer distributions: if surplus exists and seller has stated needs, excess goes to buyer
+  const surplusToBuyer = (sellerMustReceive > 0 && dealWorks) ? sellerSurplus : 0;
+  const sellerActualCash = cashToSeller - surplusToBuyer;
+  const buyerDistributions = buyerCashOut + surplusToBuyer;
+
+  // Total debt & LTV
+  const totalDebt = dscrLoan + sellerCarry;
+  const combinedLTV = (totalDebt / pp) * 100;
+
+  // Debt service
+  const dscrPmt = pmt(dscrRate, dscrTerm, dscrLoan);
+  let sellerPmt = 0;
+  if (sellerPaymentType === 'amortized') {
+    sellerPmt = pmt(sellerRate, sellerTerm, sellerCarry);
+  } else if (sellerPaymentType === 'interestonly') {
+    sellerPmt = sellerCarry * sellerRate;
+  }
+  const totalDebtService = dscrPmt + sellerPmt;
+  const sellerPaymentLabel = sellerPaymentType === 'amortized' ? 'Amortized' : sellerPaymentType === 'interestonly' ? 'Interest-Only' : 'Deferred';
+
+  // ===== UPDATE DSCR LOAN DISPLAY IN INPUTS =====
+  document.getElementById('dscrLoanValue').textContent = fmt(dscrLoan);
+  document.getElementById('cashToCloseValue').textContent = fmt(cashToClose);
+
+  // ===== RENDER DEAL SUMMARY =====
+  let summaryHTML = '<div class="result-box">';
+  summaryHTML += '<div class="result-row"><span class="result-label">Purchase Price</span><span class="result-value">' + fmt(pp) + '</span></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">Closing Costs (' + (closingCostPct*100).toFixed(1) + '%)</span><span class="result-value">' + fmt(closingCosts) + '</span></div>';
+  summaryHTML += '<div class="result-row" style="border-top:2px solid var(--gray-border);"><span class="result-label" style="font-weight:600;">Cost to Close</span><span class="result-value" style="font-weight:700;">' + fmt(costToClose) + '</span></div>';
+  summaryHTML += '<div style="height:12px;"></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">DSCR Loan (1st Position)</span><span class="result-value">' + fmt(dscrLoan) + ' <span class="result-pct">' + fmtPct((dscrLoan/pp)*100) + '</span></span></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">Seller Carry (2nd Position)</span><span class="result-value">' + fmt(sellerCarry) + ' <span class="result-pct">' + fmtPct((sellerCarry/pp)*100) + '</span></span></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">Total Debt</span><span class="result-value">' + fmt(totalDebt) + ' <span class="result-pct">' + fmtPct(combinedLTV) + ' combined LTV</span></span></div>';
+  summaryHTML += '<div style="height:12px;"></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">TF Amount</span><span class="result-value">' + fmt(tfAmount) + '</span></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">TF Fee (' + (tfRate*100).toFixed(1) + '%)</span><span class="result-value">' + fmt(tfFee) + '</span></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">TC Fee</span><span class="result-value">' + fmt(tcFee) + '</span></div>';
+  summaryHTML += '<div class="result-row"><span class="result-label">Secondary Closing</span><span class="result-value">' + fmt(secClosing) + '</span></div>';
+  if (assignmentFee > 0) summaryHTML += '<div class="result-row"><span class="result-label">Assignment Fee</span><span class="result-value">' + fmt(assignmentFee) + '</span></div>';
+  if (buyerCashOut > 0) summaryHTML += '<div class="result-row"><span class="result-label">Buyer Cash Out</span><span class="result-value">' + fmt(buyerCashOut) + '</span></div>';
+  if (currentMode === 'fixed' && buyerCashIn > 0) summaryHTML += '<div class="result-row" style="background:var(--yellow-bg);margin:4px -16px;padding:8px 16px;border-top:2px solid var(--yellow);"><span class="result-label" style="font-weight:700;">Buyer Cash Needed at Close</span><span class="result-value" style="font-weight:700;color:#854d0e;">' + fmt(buyerCashIn) + '</span></div>';
+  summaryHTML += '</div>';
+  document.getElementById('dealSummary').innerHTML = summaryHTML;
+
+  // ===== RENDER PRIMARY CLOSE =====
+  const primaryTotalIN = dscrLoan + tfAmount + buyerCashIn;
+  const primaryTotalOUT = closingCosts + existingPayoff + holdback;
+  let primaryHTML = '<div class="result-box">';
+  primaryHTML += '<strong style="color:var(--navy);display:block;margin-bottom:8px;">Cash IN to Title</strong>';
+  primaryHTML += '<div class="result-row"><span class="result-label">DSCR Loan</span><span class="result-value">' + fmt(dscrLoan) + '</span></div>';
+  primaryHTML += '<div class="result-row"><span class="result-label">Transactional Funding</span><span class="result-value">' + fmt(tfAmount) + '</span></div>';
+  if (buyerCashIn > 0) primaryHTML += '<div class="result-row"><span class="result-label">Buyer Cash In</span><span class="result-value">' + fmt(buyerCashIn) + '</span></div>';
+  primaryHTML += '<div class="result-row" style="background:var(--gray-bg);border-radius:6px;padding:0 6px;"><span class="result-label" style="font-weight:600;">Total IN</span><span class="result-value" style="font-weight:700;">' + fmt(primaryTotalIN) + '</span></div>';
+  primaryHTML += '<div style="height:12px;"></div>';
+  primaryHTML += '<strong style="color:var(--navy);display:block;margin-bottom:8px;">Cash OUT from Title</strong>';
+  primaryHTML += '<div class="result-row"><span class="result-label">Closing Costs</span><span class="result-value">-' + fmt(closingCosts) + '</span></div>';
+  if (existingPayoff > 0) primaryHTML += '<div class="result-row"><span class="result-label">Existing Loan Payoff</span><span class="result-value">-' + fmt(existingPayoff) + '</span></div>';
+  primaryHTML += '<div class="result-row"><span class="result-label">Holdback for Secondary Close</span><span class="result-value">-' + fmt(holdback) + '</span></div>';
+  primaryHTML += '<div class="result-row" style="background:var(--gray-bg);border-radius:6px;padding:0 6px;"><span class="result-label" style="font-weight:600;">Total OUT</span><span class="result-value" style="font-weight:700;">-' + fmt(primaryTotalOUT) + '</span></div>';
+  primaryHTML += '<div style="height:8px;"></div>';
+  const primaryNet = primaryTotalIN - primaryTotalOUT;
+  primaryHTML += '<div class="result-row" style="background:var(--orange-soft);margin:0 -16px -14px;padding:8px 16px;border-radius:0 0 6px 6px;border-top:2px solid var(--orange);"><span class="result-label" style="font-weight:700;">Net (must = $0)</span><span class="result-value" style="font-weight:700;color:' + (Math.abs(primaryNet) < 1 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(primaryNet) + (Math.abs(primaryNet) < 1 ? ' ✓' : ' ✗') + '</span></div>';
+  primaryHTML += '</div>';
+  document.getElementById('primaryCloseResults').innerHTML = primaryHTML;
+
+  // ===== RENDER SECONDARY CLOSE =====
+  const secTotalIN = holdback;
+  const secTFRepay = tfAmount;
+  const secTotalOUT = sellerActualCash + buyerDistributions + secTFRepay + tfFee + tcFee + secClosing + assignmentFee;
+  let secHTML = '<div class="result-box">';
+  secHTML += '<strong style="color:var(--navy);display:block;margin-bottom:8px;">Holdback from Primary Close</strong>';
+  secHTML += '<div class="result-row"><span class="result-label">Holdback from Primary Close</span><span class="result-value">' + fmt(holdback) + '</span></div>';
+  secHTML += '<div style="height:12px;"></div>';
+  secHTML += '<strong style="color:var(--navy);display:block;margin-bottom:8px;">Cash OUT (Distributions)</strong>';
+  secHTML += '<div class="result-row"><span class="result-label">Cash to Seller</span><span class="result-value">-' + fmt(sellerActualCash) + '</span></div>';
+  secHTML += '<div class="result-row"><span class="result-label">Cash Out Distributions to Buyer</span><span class="result-value">-' + fmt(buyerDistributions) + '</span></div>';
+  if (assignmentFee > 0) secHTML += '<div class="result-row"><span class="result-label">Assignment Fee</span><span class="result-value">-' + fmt(assignmentFee) + '</span></div>';
+  secHTML += '<div class="result-row"><span class="result-label">TF Repayment</span><span class="result-value">-' + fmt(secTFRepay) + '</span></div>';
+  secHTML += '<div class="result-row"><span class="result-label">TF Fee (' + (tfRate*100).toFixed(1) + '%)</span><span class="result-value">-' + fmt(tfFee) + '</span></div>';
+  secHTML += '<div class="result-row"><span class="result-label">TC Fee</span><span class="result-value">-' + fmt(tcFee) + '</span></div>';
+  secHTML += '<div class="result-row"><span class="result-label">Secondary Closing Costs</span><span class="result-value">-' + fmt(secClosing) + '</span></div>';
+  secHTML += '<div class="result-row" style="background:var(--gray-bg);border-radius:6px;padding:0 6px;"><span class="result-label" style="font-weight:600;">Total OUT</span><span class="result-value" style="font-weight:700;">-' + fmt(secTotalOUT) + '</span></div>';
+  secHTML += '<div style="height:8px;"></div>';
+  const secNet = secTotalIN - secTotalOUT;
+  secHTML += '<div class="result-row" style="background:var(--orange-soft);margin:0 -16px -14px;padding:8px 16px;border-radius:0 0 6px 6px;border-top:2px solid var(--orange);"><span class="result-label" style="font-weight:700;">Net (must = $0)</span><span class="result-value" style="font-weight:700;color:' + (Math.abs(secNet) < 1 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(secNet) + (Math.abs(secNet) < 1 ? ' ✓' : ' ✗') + '</span></div>';
+  secHTML += '</div>';
+  document.getElementById('secondaryCloseResults').innerHTML = secHTML;
+
+  // ===== CAPITAL STACK VIZ =====
+  const dscrPctStack = (dscrLoan / totalDebt) * 100;
+  const sellerPctStack = (sellerCarry / totalDebt) * 100;
+  document.getElementById('capitalStack').innerHTML = '<div class="stack-segment stack-dscr" style="flex:' + dscrPctStack + ';min-width:50px;">' + (dscrPctStack > 15 ? 'DSCR ' + dscrPctStack.toFixed(0) + '%' : '') + '</div><div class="stack-segment stack-seller" style="flex:' + sellerPctStack + ';">Seller ' + sellerPctStack.toFixed(0) + '%</div>';
+
+  // ===== LEDGER CHECK =====
+  // Sources: DSCR loan + seller carry note + buyer cash in
+  // Uses: PP + closing costs + assignment fee + TF fee + TC fee + sec closing + buyer cash out
+  // (Existing payoff is paid from PP proceeds, not a separate cost)
+  const totalIN = dscrLoan + sellerCarry + buyerCashIn;
+  const totalOUT = pp + closingCosts + assignmentFee + tfFee + tcFee + secClosing + buyerCashOut;
+  const ledgerBalance = totalIN - totalOUT;
+  let ledgerHTML = '<div class="result-box">';
+  ledgerHTML += '<div class="result-row"><span class="result-label">Total IN (DSCR + Seller Carry' + (buyerCashIn > 0 ? ' + Buyer Cash' : '') + ')</span><span class="result-value">' + fmt(totalIN) + '</span></div>';
+  ledgerHTML += '<div class="result-row"><span class="result-label">Total OUT (PP + all costs + fees)</span><span class="result-value">' + fmt(totalOUT) + '</span></div>';
+  ledgerHTML += '<div class="result-row" style="background:' + (Math.abs(ledgerBalance) < 10 ? 'var(--green-bg)' : 'var(--red-bg)') + ';margin:0 -16px -14px;padding:8px 16px;border-radius:0 0 6px 6px;border-top:2px solid ' + (Math.abs(ledgerBalance) < 10 ? 'var(--green)' : 'var(--red)') + ';"><span class="result-label" style="font-weight:700;">Balance</span><span class="result-value" style="font-weight:700;color:' + (Math.abs(ledgerBalance) < 10 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(ledgerBalance) + ' ' + (Math.abs(ledgerBalance) < 10 ? '✓' : '✗') + '</span></div>';
+  ledgerHTML += '</div>';
+  document.getElementById('ledgerCheckResults').innerHTML = ledgerHTML;
+
+  // ===== DEAL VIABILITY CHECKS =====
+  let checksHTML = '';
+  if (existingPayoff > 0) {
+    checksHTML += '<div class="callout callout-info">Existing loan payoff of ' + fmt(existingPayoff) + ' is paid at the primary close. Holdback to secondary is ' + fmt(holdback) + '.</div>';
+  }
+  if (!dealWorks) {
+    checksHTML += '<div class="callout callout-error">Seller receives ' + fmt(cashToSeller) + ' at secondary close but wants ' + fmt(sellerCashDesired) + ' in cash. Deal is short by ' + fmt(Math.abs(sellerSurplus)) + '. Increase purchase price, reduce seller cash desired, or reduce costs.</div>';
+  } else if (sellerCashDesired > 0) {
+    checksHTML += '<div class="callout callout-success">Seller receives ' + fmt(cashToSeller) + ' at secondary close, covering desired cash of ' + fmt(sellerCashDesired) + ' with ' + fmt(sellerSurplus) + ' surplus. ✓</div>';
+  } else {
+    checksHTML += '<div class="callout callout-success">Seller receives ' + fmt(cashToSeller) + ' at secondary close.' + (existingPayoff > 0 ? ' Existing payoff already handled at primary close.' : '') + ' ✓</div>';
+  }
+  if (combinedLTV > 110) {
+    checksHTML += '<div class="callout callout-warning">Combined LTV is ' + fmtPct(combinedLTV) + ' — significantly over-leveraged. Typical for STACK deals but verify debt service coverage.</div>';
+  } else if (combinedLTV > 100) {
+    checksHTML += '<div class="callout callout-info">Combined LTV is ' + fmtPct(combinedLTV) + ' — over 100% is typical for STACK Method deals.</div>';
+  }
+  if (appraisal < pp) {
+    checksHTML += '<div class="callout callout-warning">Appraisal (' + fmt(appraisal) + ') is below purchase price (' + fmt(pp) + '). DSCR loan is based on the lower appraisal value, increasing the TF amount needed.</div>';
+  }
+  if (currentMode === 'fixed' && buyerCashIn > 0) {
+    checksHTML += '<div class="callout callout-warning">Buyer must bring ' + fmt(buyerCashIn) + ' to close because the fixed seller carry of ' + fmt(sellerCarry) + ' does not cover the full transactional funding gap. To reduce buyer cash needed, increase seller carry or reduce costs.</div>';
+  }
+  if (Math.abs(primaryNet) >= 1) {
+    checksHTML += '<div class="callout callout-error">Primary close does not balance! Net = ' + fmt(primaryNet) + '. Check inputs.</div>';
+  }
+  if (Math.abs(secNet) >= 1) {
+    checksHTML += '<div class="callout callout-error">Secondary close does not balance! Net = ' + fmt(secNet) + '. Check inputs.</div>';
+  }
+  document.getElementById('dealChecks').innerHTML = checksHTML;
+
+  // ===== CASH FLOW SECTION =====
+  const rent = parseNum(document.getElementById('monthlyRent').value);
+  const vacancy = parseNum(document.getElementById('vacancyRate').value) / 100;
+  const insuranceAnnual = parseNum(document.getElementById('insurance').value);
+  const insurance = insuranceAnnual / 12;
+  const taxRate = parseNum(document.getElementById('taxRate').value) / 100 / 12;
+  const maintRate = parseNum(document.getElementById('maintRate').value) / 100;
+  const pmRate = parseNum(document.getElementById('pmRate').value) / 100;
+  const capexRate = parseNum(document.getElementById('capexRate').value) / 100;
+  const otherMonthly = parseNum(document.getElementById('otherMonthly').value);
+  const appreciationRate = parseNum(document.getElementById('appreciationRate').value) / 100;
+  const holdYears = parseNum(document.getElementById('holdYears').value);
+  const rentIncreaseRate = parseNum(document.getElementById('rentIncreaseRate').value) / 100;
+  const exitCosts = parseNum(document.getElementById('exitCosts').value) / 100;
+  const refiLTV = parseNum(document.getElementById('refiLTV').value) / 100;
+
+  if (rent <= 0) {
+    document.getElementById('cashFlowResults').innerHTML = '<p style="color:var(--slate-light);text-align:center;padding:20px;">Enter monthly rent above to see cash flow breakdown.</p>';
+    document.getElementById('cashFlowMetrics').innerHTML = '<p style="color:var(--slate-light);text-align:center;padding:16px;">Enter monthly rent above to see metrics.</p>';
+    document.getElementById('dscrWarningBox').innerHTML = '';
+    document.getElementById('projectionsTable').innerHTML = '';
+    if (chart) { chart.destroy(); chart = null; }
+    return;
+  }
+
+  // Cash flow calcs
+  const netRent = rent * (1 - vacancy);
+  const taxMonthly = pp * taxRate;
+  const maintMonthly = rent * maintRate;
+  const pmMonthly = rent * pmRate;
+  const capexMonthly = rent * capexRate;
+  const totalOpex = insurance + taxMonthly + maintMonthly + pmMonthly + capexMonthly + otherMonthly;
+  const noi = netRent - totalOpex;
+  const monthlyCF = noi - totalDebtService;
+  const dscrRatio1st = noi / dscrPmt;
+  const dscrRatioFull = noi / totalDebtService;
+  const capRate = (noi * 12) / pp * 100;
+  let cashOnCash = 'Infinite (0% down)';
+  if (buyerCashIn > 0 && monthlyCF > 0) {
+    cashOnCash = ((monthlyCF * 12 / buyerCashIn) * 100).toFixed(2) + '%';
+  }
+
+  // Render cash flow
+  let cfHTML = '<div class="result-box">';
+  cfHTML += '<div class="result-row"><span class="result-label">Monthly Gross Rent</span><span class="result-value">' + fmt(rent) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Vacancy Loss (' + (vacancy*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(rent * vacancy) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Net Rent</span><span class="result-value">' + fmt(netRent) + '</span></div>';
+  cfHTML += '<hr style="border:none;border-top:1px solid var(--gray-border);margin:8px 0;">';
+  cfHTML += '<div class="result-row"><span class="result-label">Insurance (' + fmt(insuranceAnnual) + '/yr)</span><span class="result-value">-' + fmt(insurance) + '/mo</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Property Tax (' + (taxRate*12*100).toFixed(1) + '% annual)</span><span class="result-value">-' + fmt(taxMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Maintenance (' + (maintRate*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(maintMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Property Management (' + (pmRate*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(pmMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">CapEx (' + (capexRate*100).toFixed(0) + '%)</span><span class="result-value">-' + fmt(capexMonthly) + '</span></div>';
+  if (otherMonthly > 0) cfHTML += '<div class="result-row"><span class="result-label">Other Monthly</span><span class="result-value">-' + fmt(otherMonthly) + '</span></div>';
+  cfHTML += '<div class="result-row" style="background:var(--orange-soft);margin:0 -16px;padding:8px 16px;border-top:2px solid var(--orange);"><span class="result-label" style="font-weight:700;">NOI</span><span class="result-value" style="font-weight:700;color:var(--orange);">' + fmt(noi) + '</span></div>';
+  cfHTML += '<div style="height:8px;"></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">DSCR Payment (1st)</span><span class="result-value">-' + fmt(dscrPmt) + '/mo</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Seller Payment (2nd — ' + sellerPaymentLabel + ')</span><span class="result-value">-' + fmt(sellerPmt) + '/mo</span></div>';
+  cfHTML += '<div class="result-row"><span class="result-label">Total Debt Service</span><span class="result-value">-' + fmt(totalDebtService) + '/mo</span></div>';
+  cfHTML += '<div class="result-row" style="background:' + (monthlyCF >= 0 ? 'var(--green-bg)' : 'var(--red-bg)') + ';margin:0 -16px -14px;padding:8px 16px;border-top:2px solid ' + (monthlyCF >= 0 ? 'var(--green)' : 'var(--red)') + ';"><span class="result-label" style="font-weight:700;">Monthly Cash Flow</span><span class="result-value" style="font-weight:700;color:' + (monthlyCF >= 0 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(monthlyCF) + '/mo</span></div>';
+  cfHTML += '</div>';
+  document.getElementById('cashFlowResults').innerHTML = cfHTML;
+
+  // Metrics
+  let metricsHTML = '<div class="result-box">';
+  metricsHTML += '<div class="result-row"><span class="result-label">DSCR (1st Only)</span><span class="result-value">' + dscrRatio1st.toFixed(2) + 'x ' + (dscrRatio1st >= 1.25 ? '✓' : '⚠') + '</span></div>';
+  metricsHTML += '<div class="result-row"><span class="result-label">DSCR (Full Stack)</span><span class="result-value">' + dscrRatioFull.toFixed(2) + 'x ' + (dscrRatioFull >= 1.0 ? '✓' : '⚠') + '</span></div>';
+  metricsHTML += '<div class="result-row"><span class="result-label">Cap Rate</span><span class="result-value">' + fmtPct(capRate) + '</span></div>';
+  metricsHTML += '<div class="result-row"><span class="result-label">Cash-on-Cash Return</span><span class="result-value">' + cashOnCash + '</span></div>';
+  metricsHTML += '<div class="result-row"><span class="result-label">Annual Cash Flow</span><span class="result-value">' + fmt(monthlyCF * 12) + '</span></div>';
+  metricsHTML += '</div>';
+  document.getElementById('cashFlowMetrics').innerHTML = metricsHTML;
+
+  // DSCR Warning
+  let warningHTML = '';
+  if (dscrRatioFull < 1.0) {
+    warningHTML = '<div class="callout callout-error">Full stack DSCR is below 1.0x — negative cash flow.</div>';
+  } else if (dscrRatioFull < 1.2) {
+    warningHTML = '<div class="callout callout-warning">Full stack DSCR is ' + dscrRatioFull.toFixed(2) + 'x — tight but workable.</div>';
+  }
+  document.getElementById('dscrWarningBox').innerHTML = warningHTML;
+
+  // ===== PROJECTIONS =====
+  const projections = [];
+  let propValue = pp;
+  let cumCF = 0;
+  let dscrRemaining = dscrLoan;
+  let sellerRemaining = sellerCarry;
+
+  for (let year = 1; year <= Math.max(holdYears, 5); year++) {
+    propValue *= (1 + appreciationRate);
+    const yearRent = rent * Math.pow(1 + rentIncreaseRate, year - 1);
+    const yearNetRent = yearRent * (1 - vacancy);
+    const yearTax = pp * taxRate * 12;
+    const yearMaint = yearRent * maintRate * 12;
+    const yearPM = yearRent * pmRate * 12;
+    const yearCapex = yearRent * capexRate * 12;
+    const yearOpex = insuranceAnnual + yearTax + yearMaint + yearPM + yearCapex + otherMonthly * 12;
+    const yearNOI = yearNetRent * 12 - yearOpex;
+    const yearDebtService = (dscrPmt + sellerPmt) * 12;
+    const yearCF = yearNOI - yearDebtService;
+    cumCF += yearCF;
+    dscrRemaining = Math.max(0, dscrRemaining - (dscrPmt * 12 - dscrRemaining * (dscrRateAnnual)) );
+    sellerRemaining = Math.max(0, sellerRemaining - (sellerPmt * 12 - sellerRemaining * (sellerRateAnnual)) );
+    const refiValue = propValue * refiLTV;
+    const refiProceeds = Math.max(0, refiValue - dscrRemaining - sellerRemaining);
+    const exitValue = propValue * (1 - exitCosts);
+    const exitProceeds = Math.max(0, exitValue - dscrRemaining - sellerRemaining);
+    projections.push({ year, propValue: Math.round(propValue), rent: Math.round(yearRent), noi: Math.round(yearNOI), cf: Math.round(yearCF), cumCF: Math.round(cumCF), dscrBal: Math.round(dscrRemaining), sellerBal: Math.round(sellerRemaining), equity: Math.round(propValue - dscrRemaining - sellerRemaining), refiProceeds: Math.round(refiProceeds), exitProceeds: Math.round(exitProceeds) });
+  }
+
+  let tableHTML = '<thead><tr><th>Year</th><th>Prop Value</th><th>Annual Rent</th><th>Annual NOI</th><th>Annual CF</th><th>Cumulative CF</th><th>DSCR Bal</th><th>Seller Bal</th><th>Equity</th><th>Refi Proceeds</th><th>Exit Proceeds</th></tr></thead><tbody>';
+  projections.forEach(p => {
+    tableHTML += '<tr><td>' + p.year + '</td><td>' + fmt(p.propValue) + '</td><td>' + fmt(p.rent) + '</td><td>' + fmt(p.noi) + '</td><td>' + fmt(p.cf) + '</td><td>' + fmt(p.cumCF) + '</td><td>' + fmt(p.dscrBal) + '</td><td>' + fmt(p.sellerBal) + '</td><td>' + fmt(p.equity) + '</td><td>' + fmt(p.refiProceeds) + '</td><td>' + fmt(p.exitProceeds) + '</td></tr>';
+  });
+  tableHTML += '</tbody>';
+  document.getElementById('projectionsTable').innerHTML = tableHTML;
+
+  // Chart
+  const chartCanvas = document.getElementById('projectionChart');
+  if (chart) chart.destroy();
+  chart = new Chart(chartCanvas, {
+    type: 'line',
+    data: {
+      labels: projections.map(p => 'Yr ' + p.year),
+      datasets: [
+        { label: 'Property Value', data: projections.map(p => p.propValue), borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.1)', borderWidth: 2, yAxisID: 'y', fill: true },
+        { label: 'Total Debt', data: projections.map(p => p.dscrBal + p.sellerBal), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', borderWidth: 2, yAxisID: 'y', fill: true },
+        { label: 'Equity', data: projections.map(p => p.equity), borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, yAxisID: 'y', fill: true },
+        { label: 'Annual Cash Flow', data: projections.map(p => p.cf), type: 'bar', backgroundColor: 'rgba(254,157,26,0.3)', borderColor: '#FE9D1A', borderWidth: 1, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Value / Debt / Equity' } },
+        y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Annual Cash Flow' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+// ===== PERSISTENCE (localStorage) =====
+const INPUT_IDS = ['purchasePrice','closingCostPct','ltv','appraisalValue','buyerCashOut','assignmentFee','existingPayoff','sellerCashDesired','fixedSellerCarry','dscrRate','dscrTerm','sellerRate','sellerTerm','sellerPaymentType','balloonYears','tfRate','tcFee','secClosing','monthlyRent','vacancyRate','insurance','taxRate','maintRate','pmRate','capexRate','otherMonthly','holdYears','appreciationRate','rentIncreaseRate','exitCosts','refiLTV'];
+const STORAGE_KEY = 'rqf_morby_calc';
+
+function saveInputs() {
+  try {
+    const data = { mode: currentMode };
+    INPUT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function restoreInputs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    INPUT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.value = data[id];
+    });
+    if (data.mode) setMode(data.mode);
+  } catch(e) {}
+}
+
+// Hook save into every calc
+const _origCalc = calc;
+calc = function() {
+  _origCalc();
+  saveInputs();
+};
+
+window.addEventListener('load', () => { restoreInputs(); calc(); });
+window.addEventListener('scroll', updateNavHighlight);
+</script>
+
+</body>
+</html>
