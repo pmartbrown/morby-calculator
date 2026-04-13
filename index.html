@@ -566,8 +566,8 @@ table td:first-child {
         </div>
         <div class="field">
           <label class="field-label">
-            Seller Cash Desired $
-            <span class="help-icon" data-help="How much cash the seller wants to walk away with ABOVE their loan payoff.">?</span>
+            Agreed Cash to Seller $
+            <span class="help-icon" data-help="The agreed amount the seller MUST receive at the secondary close (above their loan payoff). If the deal is short, the buyer brings cash to the primary close to guarantee this amount.">?</span>
           </label>
           <input type="text" id="sellerCashDesired" placeholder="$0" value="$0" oninput="formatAndCalc(this, 'number')">
         </div>
@@ -968,17 +968,51 @@ function calc() {
   const cashToClose = costToClose - dscrLoan;
 
   // Holdback: what flows from primary to secondary (PP minus existing payoff paid at primary)
-  const holdback = pp - existingPayoff;
+  // This is a base value — it can be boosted if buyer brings extra cash to meet agreed seller cash
+  const baseHoldback = pp - existingPayoff;
+  let holdback = baseHoldback;
 
   let tfAmount, tfFee, sellerCarry, buyerCashIn, cashToSeller;
 
   if (currentMode === 'calc') {
     // MODE 1: Back into seller carry (assignment fee paid at secondary, rolled into carry)
+    // Start with zero-down assumption: TF covers the entire gap
     tfAmount = cashToClose;
     tfFee = tfAmount * tfRate;
     sellerCarry = tfAmount + tfFee + tcFee + secClosing + buyerCashOut + assignmentFee;
     buyerCashIn = 0;
     cashToSeller = holdback - sellerCarry;
+
+    // AGREED CASH TO SELLER is a hard requirement — seller MUST receive this amount.
+    // Three tiers of solving:
+    //   1. Reduce TF to shrink seller carry, freeing holdback for seller. Buyer covers TF gap.
+    //   2. If TF=0 still isn't enough, buyer brings EXTRA cash to boost the holdback itself.
+    //   The deal always works — it just costs the buyer more.
+    if (sellerCashDesired > 0 && cashToSeller < sellerCashDesired) {
+      const minObligations = tcFee + secClosing + buyerCashOut + assignmentFee;
+      const maxCarry = holdback - sellerCashDesired;
+      const availForTF = maxCarry - minObligations;
+
+      if (availForTF >= 0) {
+        // TIER 1: Can solve by reducing TF — buyer covers the TF gap at primary close
+        tfAmount = availForTF / (1 + tfRate);
+        tfFee = tfAmount * tfRate;
+        sellerCarry = tfAmount + tfFee + minObligations;
+        buyerCashIn = Math.max(0, cashToClose - tfAmount);
+        cashToSeller = holdback - sellerCarry;
+      } else {
+        // TIER 2: Even with zero TF, holdback can't cover seller cash + fees.
+        // Buyer brings extra cash to BOOST the holdback so seller gets their agreed amount.
+        tfAmount = 0;
+        tfFee = 0;
+        sellerCarry = minObligations;
+        const availableForSeller = holdback - minObligations;
+        const shortfall = sellerCashDesired - availableForSeller;
+        buyerCashIn = cashToClose + shortfall;
+        holdback = baseHoldback + shortfall;
+        cashToSeller = holdback - sellerCarry;
+      }
+    }
   } else {
     // MODE 2: Fixed seller carry (assignment fee must also come from carry)
     sellerCarry = parseNum(document.getElementById('fixedSellerCarry').value);
@@ -987,9 +1021,17 @@ function calc() {
     tfFee = tfAmount * tfRate;
     buyerCashIn = Math.max(0, cashToClose - tfAmount);
     cashToSeller = holdback - sellerCarry;
+
+    // If agreed cash to seller can't be met, buyer boosts holdback with extra cash
+    if (sellerCashDesired > 0 && cashToSeller < sellerCashDesired) {
+      const shortfall = sellerCashDesired - cashToSeller;
+      buyerCashIn += shortfall;
+      holdback = baseHoldback + shortfall;
+      cashToSeller = holdback - sellerCarry;
+    }
   }
 
-  // Seller viability (payoff already handled in primary, so seller just needs their desired cash)
+  // Seller viability (payoff already handled in primary, so seller must get their agreed cash)
   const sellerMustReceive = sellerCashDesired;
   const sellerSurplus = cashToSeller - sellerMustReceive;
   const dealWorks = sellerSurplus >= 0;
@@ -1092,11 +1134,11 @@ function calc() {
   // Uses: PP + closing costs + assignment fee + TF fee + TC fee + sec closing + buyer cash out
   // (Existing payoff is paid from PP proceeds, not a separate cost)
   const totalIN = dscrLoan + sellerCarry + buyerCashIn;
-  const totalOUT = pp + closingCosts + assignmentFee + tfFee + tcFee + secClosing + buyerCashOut;
+  const totalOUT = pp + closingCosts + assignmentFee + tfFee + tcFee + secClosing + buyerCashOut + sellerActualCash;
   const ledgerBalance = totalIN - totalOUT;
   let ledgerHTML = '<div class="result-box">';
   ledgerHTML += '<div class="result-row"><span class="result-label">Total IN (DSCR + Seller Carry' + (buyerCashIn > 0 ? ' + Buyer Cash' : '') + ')</span><span class="result-value">' + fmt(totalIN) + '</span></div>';
-  ledgerHTML += '<div class="result-row"><span class="result-label">Total OUT (PP + all costs + fees)</span><span class="result-value">' + fmt(totalOUT) + '</span></div>';
+  ledgerHTML += '<div class="result-row"><span class="result-label">Total OUT (PP + costs + fees' + (sellerActualCash > 0 ? ' + seller cash' : '') + ')</span><span class="result-value">' + fmt(totalOUT) + '</span></div>';
   ledgerHTML += '<div class="result-row" style="background:' + (Math.abs(ledgerBalance) < 10 ? 'var(--green-bg)' : 'var(--red-bg)') + ';margin:0 -16px -14px;padding:8px 16px;border-radius:0 0 6px 6px;border-top:2px solid ' + (Math.abs(ledgerBalance) < 10 ? 'var(--green)' : 'var(--red)') + ';"><span class="result-label" style="font-weight:700;">Balance</span><span class="result-value" style="font-weight:700;color:' + (Math.abs(ledgerBalance) < 10 ? 'var(--green)' : 'var(--red)') + ';">' + fmt(ledgerBalance) + ' ' + (Math.abs(ledgerBalance) < 10 ? '✓' : '✗') + '</span></div>';
   ledgerHTML += '</div>';
   document.getElementById('ledgerCheckResults').innerHTML = ledgerHTML;
@@ -1104,12 +1146,12 @@ function calc() {
   // ===== DEAL VIABILITY CHECKS =====
   let checksHTML = '';
   if (existingPayoff > 0) {
-    checksHTML += '<div class="callout callout-info">Existing loan payoff of ' + fmt(existingPayoff) + ' is paid at the primary close. Holdback to secondary is ' + fmt(holdback) + '.</div>';
+    checksHTML += '<div class="callout callout-info">Existing loan payoff of ' + fmt(existingPayoff) + ' is paid at the primary close. Holdback to secondary is ' + fmt(holdback) + (holdback > baseHoldback ? ' (includes ' + fmt(holdback - baseHoldback) + ' buyer boost)' : '') + '.</div>';
   }
   if (!dealWorks) {
-    checksHTML += '<div class="callout callout-error">Seller receives ' + fmt(cashToSeller) + ' at secondary close but wants ' + fmt(sellerCashDesired) + ' in cash. Deal is short by ' + fmt(Math.abs(sellerSurplus)) + '. Increase purchase price, reduce seller cash desired, or reduce costs.</div>';
+    checksHTML += '<div class="callout callout-error">Seller receives ' + fmt(cashToSeller) + ' at secondary close but is owed ' + fmt(sellerCashDesired) + ' per agreement. Deal is short by ' + fmt(Math.abs(sellerSurplus)) + '. Increase purchase price, reduce agreed cash to seller, or reduce costs.</div>';
   } else if (sellerCashDesired > 0) {
-    checksHTML += '<div class="callout callout-success">Seller receives ' + fmt(cashToSeller) + ' at secondary close, covering desired cash of ' + fmt(sellerCashDesired) + ' with ' + fmt(sellerSurplus) + ' surplus. ✓</div>';
+    checksHTML += '<div class="callout callout-success">Seller receives ' + fmt(cashToSeller) + ' at secondary close, meeting agreed cash of ' + fmt(sellerCashDesired) + ' with ' + fmt(sellerSurplus) + ' surplus. ✓</div>';
   } else {
     checksHTML += '<div class="callout callout-success">Seller receives ' + fmt(cashToSeller) + ' at secondary close.' + (existingPayoff > 0 ? ' Existing payoff already handled at primary close.' : '') + ' ✓</div>';
   }
@@ -1121,8 +1163,15 @@ function calc() {
   if (appraisal < pp) {
     checksHTML += '<div class="callout callout-warning">Appraisal (' + fmt(appraisal) + ') is below purchase price (' + fmt(pp) + '). DSCR loan is based on the lower appraisal value, increasing the TF amount needed.</div>';
   }
+  if (currentMode === 'calc' && buyerCashIn > 0) {
+    if (holdback > baseHoldback) {
+      checksHTML += '<div class="callout callout-warning">Buyer must bring ' + fmt(buyerCashIn) + ' to close to guarantee the seller receives the agreed ' + fmt(sellerCashDesired) + '. This includes ' + fmt(cashToClose) + ' to cover the financing gap (TF eliminated) plus ' + fmt(holdback - baseHoldback) + ' extra to boost the holdback. To reduce buyer cash needed, lower the agreed cash to seller, increase LTV, or reduce costs.</div>';
+    } else {
+      checksHTML += '<div class="callout callout-warning">Buyer must bring ' + fmt(buyerCashIn) + ' to close to guarantee the seller receives the agreed ' + fmt(sellerCashDesired) + '. TF was reduced to ' + fmt(tfAmount) + ' (from ' + fmt(cashToClose) + ') to shrink the seller carry note and free holdback. To reduce buyer cash needed, lower the agreed cash to seller, increase LTV, or reduce costs.</div>';
+    }
+  }
   if (currentMode === 'fixed' && buyerCashIn > 0) {
-    checksHTML += '<div class="callout callout-warning">Buyer must bring ' + fmt(buyerCashIn) + ' to close because the fixed seller carry of ' + fmt(sellerCarry) + ' does not cover the full transactional funding gap. To reduce buyer cash needed, increase seller carry or reduce costs.</div>';
+    checksHTML += '<div class="callout callout-warning">Buyer must bring ' + fmt(buyerCashIn) + ' to close because the fixed seller carry of ' + fmt(sellerCarry) + ' does not cover the full transactional funding gap.' + (sellerCashDesired > 0 && holdback > baseHoldback ? ' This includes extra cash to boost the holdback and guarantee the seller receives the agreed ' + fmt(sellerCashDesired) + '.' : '') + ' To reduce buyer cash needed, increase seller carry or reduce costs.</div>';
   }
   if (Math.abs(primaryNet) >= 1) {
     checksHTML += '<div class="callout callout-error">Primary close does not balance! Net = ' + fmt(primaryNet) + '. Check inputs.</div>';
